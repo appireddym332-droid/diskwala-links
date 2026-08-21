@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diskwala Links</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f6f8;
+      color: #111;
+    }
+
+    header {
+      background: #111;
+      color: white;
+      padding: 18px 16px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      color: #bbb;
+      font-size: 13px;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      padding: 16px;
+    }
+
+    .search {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      font-size: 16px;
+      outline: none;
+      margin-bottom: 16px;
+      background: white;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 30px;
+      color: #666;
+    }
+
+    .error {
+      background: #ffe5e5;
+      color: #b00020;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 18px;
+      box-shadow: 0 3px 12px rgba(0,0,0,.08);
+    }
+
+    .thumb {
+      width: 100%;
+      display: block;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      background: #ddd;
+    }
+
+    .content {
+      padding: 15px;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .watch {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      background: #111;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .watch:active {
+      transform: scale(.98);
+    }
+
+    .empty {
+      text-align: center;
+      padding: 40px 10px;
+      color: #777;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>Diskwala Links</h1>
+    <p>Watch your videos</p>
+  </header>
+
+  <div class="container">
+
+    <input
+      id="search"
+      class="search"
+      type="text"
+      placeholder="Search videos..."
+      oninput="filterVideos()"
+    >
+
+    <div id="message" class="loading">
+      Loading videos...
+    </div>
+
+    <div id="videos"></div>
+
+  </div>
+
+  <script>
+    const SUPABASE_URL =
+      "https://tmwzrmqtajwyocdzdzus.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_6NluK0UVqW31Kve-ADGXNg_GPprXmiz";
+
+    const client = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    let allVideos = [];
+
+    async function loadVideos() {
+
+      const message = document.getElementById("message");
+      const videos = document.getElementById("videos");
+
+      message.style.display = "block";
+      message.className = "loading";
+      message.innerText = "Loading videos...";
+      videos.innerHTML = "";
+
+      const { data, error } = await client
+        .from("diskwala_links")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.log(error);
+
+        message.className = "error";
+        message.innerText =
+          "Unable to load videos. Please check Supabase RLS policy.";
+
+        return;
+      }
+
+      allVideos = data || [];
+
+      message.style.display = "none";
+
+      if (allVideos.length === 0) {
+        videos.innerHTML =
+          '<div class="empty">No videos available.</div>';
+        return;
+      }
+
+      displayVideos(allVideos);
+    }
+
+    function displayVideos(list) {
+
+      const videos = document.getElementById("videos");
+
+      videos.innerHTML = "";
+
+      list.forEach(video => {
+
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const thumbnail =
+          video.thumbnail_url ||
+          "https://via.placeholder.com/800x450?text=Diskwala";
+
+        const title =
+          video.title || "Watch Video";
+
+        const url =
+          video.diskwala_url || "#";
+
+        card.innerHTML = `
+          <img
+            class="thumb"
+            src="${thumbnail}"
+            alt="${escapeHtml(title)}"
+            onerror="this.src='https://via.placeholder.com/800x450?text=Diskwala'"
+          >
+
+          <div class="content">
+
+            <div class="title">
+              ${escapeHtml(title)}
+            </div>
+
+            <a
+              class="watch"
+              href="${url}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ▶ Watch Video
+            </a>
+
+          </div>
+        `;
+
+        videos.appendChild(card);
+      });
+    }
+
+    function filterVideos() {
