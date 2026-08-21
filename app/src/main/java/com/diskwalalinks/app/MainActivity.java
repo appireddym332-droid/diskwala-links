@@ -38,40 +38,28 @@ public class MainActivity extends Activity {
         }
 
         // Handle intent:// links
-        if (url.startsWith("intent://")) {
-            try {
-                Intent intent = Intent.parseUri(
-                    url,
-                    Intent.URI_INTENT_SCHEME
-                );
+if (url.startsWith("intent://")) {
+    try {
+        Intent intent = Intent.parseUri(
+                url,
+                Intent.URI_INTENT_SCHEME
+        );
 
-                String fallbackUrl =
-                    intent.getStringExtra("browser_fallback_url");
+        // Open directly in Diskwala app
+        intent.setPackage("com.diskwalaapp");
 
-                if (fallbackUrl != null &&
-                    (fallbackUrl.startsWith("http://") ||
-                     fallbackUrl.startsWith("https://"))) {
-
-                    view.loadUrl(fallbackUrl);
-                    return true;
-                }
-
-                String webUrl = url.substring(9);
-
-                int end = webUrl.indexOf(";");
-
-                if (end > 0) {
-                    webUrl = webUrl.substring(0, end);
-                }
-
-                view.loadUrl("https://" + webUrl);
-                return true;
-
-            } catch (Exception e) {
-                return true;
-            }
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+            return true;
         }
 
+        // App not available - do not open Play Store
+        return true;
+
+    } catch (Exception e) {
+        return true;
+    }
+}
         return true;
     }
 });
