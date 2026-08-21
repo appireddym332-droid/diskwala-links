@@ -2,7 +2,6 @@ package com.diskwalalinks.app;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -31,53 +30,37 @@ public class MainActivity extends Activity {
                     return false;
                 }
 
-                // Normal website links
+                // Always keep normal web pages inside this app
                 if (url.startsWith("http://")
                         || url.startsWith("https://")) {
-                    return false;
+                    view.loadUrl(url);
+                    return true;
                 }
 
-                // Diskwala / intent links
+                // Open Diskwala app for intent:// links
                 if (url.startsWith("intent://")) {
-
                     try {
                         Intent intent = Intent.parseUri(
                                 url,
                                 Intent.URI_INTENT_SCHEME
                         );
 
+                        intent.setPackage("com.diskwalaapp");
+
                         if (intent.resolveActivity(
                                 getPackageManager()) != null) {
 
                             startActivity(intent);
-                            return true;
                         }
 
-                        // Do NOT open Play Store
-                        return true;
-
                     } catch (Exception e) {
-                        return true;
-                    }
-                }
-
-                // Other app links
-                try {
-                    Intent intent = new Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(url)
-                    );
-
-                    if (intent.resolveActivity(
-                            getPackageManager()) != null) {
-
-                        startActivity(intent);
+                        // Do nothing
                     }
 
-                } catch (Exception e) {
-                    // Ignore
+                    return true;
                 }
 
+                // Ignore all other schemes
                 return true;
             }
         });
