@@ -48,7 +48,7 @@ header p{
   border-radius:12px;
   font-size:16px;
   outline:none;
-  margin-bottom:16px;
+  margin-bottom:18px;
   background:white;
 }
 
@@ -70,21 +70,33 @@ header p{
 .card{
   background:white;
   border-radius:16px;
-  margin-bottom:18px;
-  padding:18px;
+  overflow:hidden;
+  margin-bottom:20px;
   box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.thumb{
+  width:100%;
+  aspect-ratio:16/9;
+  object-fit:cover;
+  display:block;
+  background:#ddd;
+}
+
+.content{
+  padding:16px;
 }
 
 .title{
   font-size:19px;
   font-weight:bold;
-  margin-bottom:8px;
+  margin-bottom:7px;
 }
 
 .slug{
   color:#777;
   font-size:14px;
-  margin-bottom:15px;
+  margin-bottom:14px;
 }
 
 .watch{
@@ -148,8 +160,11 @@ let allVideos = [];
 
 async function loadVideos(){
 
-  const message = document.getElementById("message");
-  const videos = document.getElementById("videos");
+  const message =
+    document.getElementById("message");
+
+  const videos =
+    document.getElementById("videos");
 
   message.style.display = "block";
   message.className = "loading";
@@ -159,16 +174,16 @@ async function loadVideos(){
 
   const { data, error } = await client
     .from("diskwala_links")
-    .select("id,slug,title");
+    .select("id,slug,title,thumbnail_url");
 
   if(error){
 
-    console.error("Supabase Error:", error);
+    console.error(error);
 
     message.className = "error";
 
     message.innerText =
-      "Videos load avvatledu. Supabase RLS policy check cheyyandi.";
+      "Unable to load videos. Please check Supabase.";
 
     return;
   }
@@ -209,6 +224,10 @@ function displayVideos(list){
     const slug =
       video.slug || "";
 
+    const thumbnail =
+      video.thumbnail_url ||
+      "https://via.placeholder.com/800x450?text=Diskwala";
+
     let link = slug;
 
     if(
@@ -219,26 +238,39 @@ function displayVideos(list){
     }
 
     const buttonClass =
-      link === "#" ? "watch disabled" : "watch";
+      link === "#"
+      ? "watch disabled"
+      : "watch";
 
     card.innerHTML = `
 
-      <div class="title">
-        ${escapeHtml(title)}
-      </div>
-
-      <div class="slug">
-        ${escapeHtml(slug)}
-      </div>
-
-      <a
-        class="${buttonClass}"
-        href="${escapeHtml(link)}"
-        target="_blank"
-        rel="noopener noreferrer"
+      <img
+        class="thumb"
+        src="${escapeHtml(thumbnail)}"
+        alt="${escapeHtml(title)}"
+        onerror="this.src='https://via.placeholder.com/800x450?text=Diskwala'"
       >
-        ▶ Watch Video
-      </a>
+
+      <div class="content">
+
+        <div class="title">
+          ${escapeHtml(title)}
+        </div>
+
+        <div class="slug">
+          ${escapeHtml(slug)}
+        </div>
+
+        <a
+          class="${buttonClass}"
+          href="${escapeHtml(link)}"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          ▶ Watch Video
+        </a>
+
+      </div>
 
     `;
 
