@@ -2,6 +2,7 @@ package com.diskwalalinks.app;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.content.Intent;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -22,7 +23,58 @@ public class MainActivity extends Activity {
         settings.setDomStorageEnabled(true);
         settings.setMediaPlaybackRequiresUserGesture(false);
 
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new WebViewClient() {
+
+    @Override
+    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+
+        if (url == null) {
+            return false;
+        }
+
+        // Normal web links
+        if (url.startsWith("http://") || url.startsWith("https://")) {
+            return false;
+        }
+
+        // Handle intent:// links
+        if (url.startsWith("intent://")) {
+            try {
+                Intent intent = Intent.parseUri(
+                    url,
+                    Intent.URI_INTENT_SCHEME
+                );
+
+                String fallbackUrl =
+                    intent.getStringExtra("browser_fallback_url");
+
+                if (fallbackUrl != null &&
+                    (fallbackUrl.startsWith("http://") ||
+                     fallbackUrl.startsWith("https://"))) {
+
+                    view.loadUrl(fallbackUrl);
+                    return true;
+                }
+
+                String webUrl = url.substring(9);
+
+                int end = webUrl.indexOf(";");
+
+                if (end > 0) {
+                    webUrl = webUrl.substring(0, end);
+                }
+
+                view.loadUrl("https://" + webUrl);
+                return true;
+
+            } catch (Exception e) {
+                return true;
+            }
+        }
+
+        return true;
+    }
+});
 
         webView.loadUrl("https://appireddym332-droid.github.io/diskwala-links/");
     }
