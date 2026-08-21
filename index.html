@@ -263,12 +263,12 @@ function displayVideos(list){
           ${escapeHtml(slug)}
         </div>
 
-        <a
+        <button
   class="${buttonClass}"
-  href="${escapeHtml(link)}"
+  onclick="openDiskwala('${escapeHtml(link)}')"
 >
   ▶ Watch Video
-</a>
+</button>
 
       </div>
 
@@ -337,7 +337,17 @@ function escapeHtml(text){
 }
 
 
-loadVideos();
+function openDiskwala(link) {
+
+  if (!link || link === "#") {
+    return;
+  }
+
+  // Android WebView: send the Diskwala URL
+  // through the normal navigation system.
+  window.location.href = link;
+}
+  loadVideos();
 
 </script>
 
