@@ -174,7 +174,7 @@ async function loadVideos(){
 
   const { data, error } = await client
     .from("diskwala_links")
-    .select("id,slug,title,thumbnail_url");
+    .select("id,slug,title,thumbnail_url,diskwala_url");
 
   if(error){
 
