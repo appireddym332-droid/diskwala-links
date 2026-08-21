@@ -37,7 +37,6 @@ public class MainActivity extends Activity {
             return false;
         }
 
-        // Handle intent:// links
 if (url.startsWith("intent://")) {
     try {
         Intent intent = Intent.parseUri(
@@ -45,24 +44,28 @@ if (url.startsWith("intent://")) {
                 Intent.URI_INTENT_SCHEME
         );
 
-        // Open directly in Diskwala app
         intent.setPackage("com.diskwalaapp");
-
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
             return true;
         }
 
-        // App not available - do not open Play Store
-        return true;
+        String fallbackUrl =
+                intent.getStringExtra("browser_fallback_url");
+
+        if (fallbackUrl != null &&
+                (fallbackUrl.startsWith("http://") ||
+                 fallbackUrl.startsWith("https://"))) {
+            view.loadUrl(fallbackUrl);
+            return true;
+        }
 
     } catch (Exception e) {
         return true;
     }
+
+    return true;
 }
-        return true;
-    }
-});
 
         webView.loadUrl("https://appireddym332-droid.github.io/diskwala-links/");
     }
