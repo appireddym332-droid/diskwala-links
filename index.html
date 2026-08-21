@@ -1,252 +1,313 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Diskwala Links</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diskwala Links</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
+*{box-sizing:border-box}
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f6f8;
-      color: #111;
-    }
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f5f6f8;
+  color:#111;
+}
 
-    header {
-      background: #111;
-      color: white;
-      padding: 18px 16px;
-      text-align: center;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
+header{
+  background:#111;
+  color:white;
+  padding:18px 16px;
+  text-align:center;
+}
 
-    header h1 {
-      margin: 0;
-      font-size: 24px;
-    }
+header h1{
+  margin:0;
+  font-size:24px;
+}
 
-    header p {
-      margin: 6px 0 0;
-      color: #bbb;
-      font-size: 13px;
-    }
+header p{
+  margin:6px 0 0;
+  color:#bbb;
+  font-size:13px;
+}
 
-    .container {
-      max-width: 700px;
-      margin: auto;
-      padding: 16px;
-    }
+.container{
+  max-width:700px;
+  margin:auto;
+  padding:16px;
+}
 
-    .search {
-      width: 100%;
-      padding: 14px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      font-size: 16px;
-      outline: none;
-      margin-bottom: 16px;
-      background: white;
-    }
+.search{
+  width:100%;
+  padding:14px;
+  border:1px solid #ddd;
+  border-radius:12px;
+  font-size:16px;
+  outline:none;
+  margin-bottom:16px;
+  background:white;
+}
 
-    .loading {
-      text-align: center;
-      padding: 30px;
-      color: #666;
-    }
+.loading,
+.empty{
+  text-align:center;
+  padding:40px 10px;
+  color:#777;
+}
 
-    .error {
-      background: #ffe5e5;
-      color: #b00020;
-      padding: 15px;
-      border-radius: 12px;
-      margin-bottom: 15px;
-    }
+.error{
+  background:#ffe5e5;
+  color:#b00020;
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:15px;
+}
 
-    .card {
-      background: white;
-      border-radius: 16px;
-      overflow: hidden;
-      margin-bottom: 18px;
-      box-shadow: 0 3px 12px rgba(0,0,0,.08);
-    }
+.card{
+  background:white;
+  border-radius:16px;
+  margin-bottom:18px;
+  padding:18px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
 
-    .thumb {
-      width: 100%;
-      display: block;
-      aspect-ratio: 16 / 9;
-      object-fit: cover;
-      background: #ddd;
-    }
+.title{
+  font-size:19px;
+  font-weight:bold;
+  margin-bottom:8px;
+}
 
-    .content {
-      padding: 15px;
-    }
+.slug{
+  color:#777;
+  font-size:14px;
+  margin-bottom:15px;
+}
 
-    .title {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 12px;
-    }
+.watch{
+  display:block;
+  width:100%;
+  padding:13px;
+  border-radius:10px;
+  background:#111;
+  color:white;
+  text-align:center;
+  text-decoration:none;
+  font-weight:bold;
+}
 
-    .watch {
-      display: block;
-      width: 100%;
-      padding: 13px;
-      border-radius: 10px;
-      background: #111;
-      color: white;
-      text-align: center;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .watch:active {
-      transform: scale(.98);
-    }
-
-    .empty {
-      text-align: center;
-      padding: 40px 10px;
-      color: #777;
-    }
-  </style>
+.watch.disabled{
+  background:#aaa;
+  pointer-events:none;
+}
+</style>
 </head>
 
 <body>
 
-  <header>
-    <h1>Diskwala Links</h1>
-    <p>Watch your videos</p>
-  </header>
+<header>
+  <h1>Diskwala Links</h1>
+  <p>Watch your videos</p>
+</header>
 
-  <div class="container">
+<div class="container">
 
-    <input
-      id="search"
-      class="search"
-      type="text"
-      placeholder="Search videos..."
-      oninput="filterVideos()"
-    >
+<input
+  id="search"
+  class="search"
+  type="text"
+  placeholder="Search videos..."
+  oninput="filterVideos()"
+>
 
-    <div id="message" class="loading">
-      Loading videos...
-    </div>
+<div id="message" class="loading">
+  Loading videos...
+</div>
 
-    <div id="videos"></div>
+<div id="videos"></div>
 
-  </div>
+</div>
 
-  <script>
-    const SUPABASE_URL =
-      "https://tmwzrmqtajwyocdzdzus.supabase.co";
+<script>
 
-    const SUPABASE_KEY =
-      "sb_publishable_6NluK0UVqW31Kve-ADGXNg_GPprXmiz";
+const SUPABASE_URL =
+"https://tmwzrmqtajwyocdzdzus.supabase.co";
 
-    const client = supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
+const SUPABASE_KEY =
+"sb_publishable_6NluK0UVqW31Kve-ADGXNg_GPprXmiz";
 
-    let allVideos = [];
+const client = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
-    async function loadVideos() {
+let allVideos = [];
 
-      const message = document.getElementById("message");
-      const videos = document.getElementById("videos");
+async function loadVideos(){
 
-      message.style.display = "block";
-      message.className = "loading";
-      message.innerText = "Loading videos...";
-      videos.innerHTML = "";
+  const message = document.getElementById("message");
+  const videos = document.getElementById("videos");
 
-      const { data, error } = await client
-        .from("diskwala_links")
-        .select("*")
-        .order("created_at", { ascending: false });
+  message.style.display = "block";
+  message.className = "loading";
+  message.innerText = "Loading videos...";
 
-      if (error) {
-        console.log(error);
+  videos.innerHTML = "";
 
-        message.className = "error";
-        message.innerText =
-          "Unable to load videos. Please check Supabase RLS policy.";
+  const { data, error } = await client
+    .from("diskwala_links")
+    .select("id,slug,title");
 
-        return;
-      }
+  if(error){
 
-      allVideos = data || [];
+    console.error("Supabase Error:", error);
 
-      message.style.display = "none";
+    message.className = "error";
 
-      if (allVideos.length === 0) {
-        videos.innerHTML =
-          '<div class="empty">No videos available.</div>';
-        return;
-      }
+    message.innerText =
+      "Videos load avvatledu. Supabase RLS policy check cheyyandi.";
 
-      displayVideos(allVideos);
+    return;
+  }
+
+  allVideos = data || [];
+
+  message.style.display = "none";
+
+  if(allVideos.length === 0){
+
+    videos.innerHTML =
+      '<div class="empty">No videos available.</div>';
+
+    return;
+  }
+
+  displayVideos(allVideos);
+}
+
+
+function displayVideos(list){
+
+  const videos =
+    document.getElementById("videos");
+
+  videos.innerHTML = "";
+
+  list.forEach(video => {
+
+    const card =
+      document.createElement("div");
+
+    card.className = "card";
+
+    const title =
+      video.title || "Watch Video";
+
+    const slug =
+      video.slug || "";
+
+    let link = slug;
+
+    if(
+      !link.startsWith("http://") &&
+      !link.startsWith("https://")
+    ){
+      link = "#";
     }
 
-    function displayVideos(list) {
+    const buttonClass =
+      link === "#" ? "watch disabled" : "watch";
 
-      const videos = document.getElementById("videos");
+    card.innerHTML = `
 
-      videos.innerHTML = "";
+      <div class="title">
+        ${escapeHtml(title)}
+      </div>
 
-      list.forEach(video => {
+      <div class="slug">
+        ${escapeHtml(slug)}
+      </div>
 
-        const card = document.createElement("div");
-        card.className = "card";
+      <a
+        class="${buttonClass}"
+        href="${escapeHtml(link)}"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        ▶ Watch Video
+      </a>
 
-        const thumbnail =
-          video.thumbnail_url ||
-          "https://via.placeholder.com/800x450?text=Diskwala";
+    `;
 
-        const title =
-          video.title || "Watch Video";
+    videos.appendChild(card);
 
-        const url =
-          video.diskwala_url || "#";
+  });
+}
 
-        card.innerHTML = `
-          <img
-            class="thumb"
-            src="${thumbnail}"
-            alt="${escapeHtml(title)}"
-            onerror="this.src='https://via.placeholder.com/800x450?text=Diskwala'"
-          >
 
-          <div class="content">
+function filterVideos(){
 
-            <div class="title">
-              ${escapeHtml(title)}
-            </div>
+  const search =
+    document
+      .getElementById("search")
+      .value
+      .toLowerCase()
+      .trim();
 
-            <a
-              class="watch"
-              href="${url}"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              ▶ Watch Video
-            </a>
+  if(!search){
 
-          </div>
-        `;
+    displayVideos(allVideos);
+    return;
 
-        videos.appendChild(card);
-      });
-    }
+  }
 
-    function filterVideos() {
+  const filtered =
+    allVideos.filter(video => {
+
+      const title =
+        (video.title || "").toLowerCase();
+
+      const slug =
+        (video.slug || "").toLowerCase();
+
+      return (
+        title.includes(search) ||
+        slug.includes(search)
+      );
+
+    });
+
+  if(filtered.length === 0){
+
+    document.getElementById("videos").innerHTML =
+      '<div class="empty">No videos found.</div>';
+
+    return;
+
+  }
+
+  displayVideos(filtered);
+}
+
+
+function escapeHtml(text){
+
+  const div =
+    document.createElement("div");
+
+  div.textContent =
+    text == null ? "" : String(text);
+
+  return div.innerHTML;
+}
+
+
+loadVideos();
+
+</script>
+
+</body>
+</html>
