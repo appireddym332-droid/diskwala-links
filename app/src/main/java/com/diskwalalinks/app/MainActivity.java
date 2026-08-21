@@ -2,13 +2,18 @@ package com.diskwalalinks.app;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 public class MainActivity extends Activity {
 
     private WebView webView;
+
+    private static final String HOME_URL =
+            "https://appireddym332-droid.github.io/diskwala-links/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,43 +29,70 @@ public class MainActivity extends Activity {
 
             @Override
             public boolean shouldOverrideUrlLoading(
-                    WebView view, String url) {
+                    WebView view,
+                    WebResourceRequest request) {
+
+                if (request == null || request.getUrl() == null) {
+                    return false;
+                }
+
+                String url = request.getUrl().toString();
+
+                return handleUrl(url);
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(
+                    WebView view,
+                    String url) {
+
+                return handleUrl(url);
+            }
+
+            private boolean handleUrl(String url) {
 
                 if (url == null) {
                     return false;
                 }
 
-                // Always keep normal web pages inside this app
-                if (url.startsWith("https://")
-        || url.startsWith("http://")) {
+                // ==========================================
+                // DISKWALA APP LINKS
+                // ==========================================
 
-    try {
-        Intent intent = new Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse(url)
-        );
+                if (url.startsWith(
+                        "https://www.diskwala.com/app/")) {
 
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivity(intent);
-            return true;
-        }
+                    try {
 
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
+                        Intent intent = new Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse(url)
+                        );
 
-    return false;
+                        startActivity(intent);
+
+                        return true;
+
+                    } catch (Exception e) {
+
+                        e.printStackTrace();
+
+                        return true;
+                    }
                 }
 
-                // Open Diskwala app for intent:// links
+                // ==========================================
+                // INTENT LINKS
+                // ==========================================
+
                 if (url.startsWith("intent://")) {
+
                     try {
+
                         Intent intent = Intent.parseUri(
                                 url,
                                 Intent.URI_INTENT_SCHEME
                         );
-
-                        intent.setPackage("com.diskwalaapp");
 
                         if (intent.resolveActivity(
                                 getPackageManager()) != null) {
@@ -68,29 +100,66 @@ public class MainActivity extends Activity {
                             startActivity(intent);
                         }
 
-                    } catch (Exception e) {
-                        // Do nothing
-                    }
+                        return true;
 
-                    return true;
+                    } catch (Exception e) {
+
+                        e.printStackTrace();
+
+                        return true;
+                    }
                 }
 
-                // Ignore all other schemes
+                // ==========================================
+                // NORMAL WEBSITE
+                // Keep inside WebView
+                // ==========================================
+
+                if (url.startsWith("https://")
+                        || url.startsWith("http://")) {
+
+                    return false;
+                }
+
+                // ==========================================
+                // OTHER APP LINKS
+                // ==========================================
+
+                try {
+
+                    Intent intent = new Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse(url)
+                    );
+
+                    if (intent.resolveActivity(
+                            getPackageManager()) != null) {
+
+                        startActivity(intent);
+                    }
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+                }
+
                 return true;
             }
         });
 
-        webView.loadUrl(
-                "https://appireddym332-droid.github.io/diskwala-links/"
-        );
+        // Open your website INSIDE the app
+        webView.loadUrl(HOME_URL);
     }
 
     @Override
     public void onBackPressed() {
 
-        if (webView.canGoBack()) {
+        if (webView != null && webView.canGoBack()) {
+
             webView.goBack();
+
         } else {
+
             super.onBackPressed();
         }
     }
