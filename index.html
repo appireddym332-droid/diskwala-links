@@ -244,12 +244,14 @@ function displayVideos(list){
 
     card.innerHTML = `
 
-      <img
-        class="thumb"
-        src="${escapeHtml(thumbnail)}"
-        alt="${escapeHtml(title)}"
-        onerror="this.src='https://via.placeholder.com/800x450?text=Diskwala'"
-      >
+      <a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer">
+  <img
+    class="thumb"
+    src="${escapeHtml(thumbnail)}"
+    alt="${escapeHtml(title)}"
+    onerror="this.src='https://via.placeholder.com/800x450?text=No+Thumbnail'"
+  >
+</a>
 
       <div class="content">
 
