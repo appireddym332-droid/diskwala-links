@@ -244,14 +244,14 @@ function displayVideos(list){
 
     card.innerHTML = `
 
-      <a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer">
+      <div onclick="openDiskwala('${escapeHtml(link)}')">
   <img
     class="thumb"
     src="${escapeHtml(thumbnail)}"
     alt="${escapeHtml(title)}"
     onerror="this.src='https://via.placeholder.com/800x450?text=No+Thumbnail'"
   >
-</a>
+</div>
 
       <div class="content">
 
@@ -263,12 +263,14 @@ function displayVideos(list){
           ${escapeHtml(slug)}
         </div>
 
-        <button
-  class="${buttonClass}"
-  onclick="openDiskwala('${escapeHtml(link)}')"
->
-  ▶ Watch Video
-</button>
+        function openDiskwala(link) {
+
+  if (!link || link === "#") {
+    return;
+  }
+
+  window.location.href = link;
+}
 
       </div>
 
