@@ -24,7 +24,7 @@ public class MainActivity extends Activity {
 
         webView.setWebViewClient(new WebViewClient());
 
-        webView.loadUrl("https://ireddym332-droid.github.io/diskwala-links/");
+        webView.loadUrl("https://appireddym332-droid.github.io/diskwala-links/");
     }
 
     @Override
