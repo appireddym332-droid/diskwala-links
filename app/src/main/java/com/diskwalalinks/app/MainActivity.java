@@ -31,10 +31,25 @@ public class MainActivity extends Activity {
                 }
 
                 // Always keep normal web pages inside this app
-                if (url.startsWith("http://")
-                        || url.startsWith("https://")) {
-                    view.loadUrl(url);
-                    return true;
+                if (url.startsWith("https://")
+        || url.startsWith("http://")) {
+
+    try {
+        Intent intent = new Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse(url)
+        );
+
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+            return true;
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return false;
                 }
 
                 // Open Diskwala app for intent:// links
