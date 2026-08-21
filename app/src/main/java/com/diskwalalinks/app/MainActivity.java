@@ -66,7 +66,7 @@ if (url.startsWith("intent://")) {
 
     return true;
 }
-
+});
         webView.loadUrl("https://appireddym332-droid.github.io/diskwala-links/");
     }
 
