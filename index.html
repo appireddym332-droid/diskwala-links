@@ -1,220 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Diskwala Links</title>
+function displayVideos(list) {
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
-<style>
-*{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#f5f6f8;
-  color:#111;
-}
-
-header{
-  background:#111;
-  color:white;
-  padding:18px 16px;
-  text-align:center;
-}
-
-header h1{
-  margin:0;
-  font-size:24px;
-}
-
-header p{
-  margin:6px 0 0;
-  color:#bbb;
-  font-size:13px;
-}
-
-.container{
-  max-width:700px;
-  margin:auto;
-  padding:16px;
-}
-
-.search{
-  width:100%;
-  padding:14px;
-  border:1px solid #ddd;
-  border-radius:12px;
-  font-size:16px;
-  outline:none;
-  margin-bottom:18px;
-  background:white;
-}
-
-.loading,
-.empty{
-  text-align:center;
-  padding:40px 10px;
-  color:#777;
-}
-
-.error{
-  background:#ffe5e5;
-  color:#b00020;
-  padding:15px;
-  border-radius:12px;
-  margin-bottom:15px;
-}
-
-.card{
-  background:white;
-  border-radius:16px;
-  overflow:hidden;
-  margin-bottom:20px;
-  box-shadow:0 3px 12px rgba(0,0,0,.08);
-}
-
-.thumb{
-  width:100%;
-  aspect-ratio:16/9;
-  object-fit:cover;
-  display:block;
-  background:#ddd;
-}
-
-.content{
-  padding:16px;
-}
-
-.title{
-  font-size:19px;
-  font-weight:bold;
-  margin-bottom:7px;
-}
-
-.slug{
-  color:#777;
-  font-size:14px;
-  margin-bottom:14px;
-}
-
-.watch{
-  display:block;
-  width:100%;
-  padding:13px;
-  border-radius:10px;
-  background:#111;
-  color:white;
-  text-align:center;
-  text-decoration:none;
-  font-weight:bold;
-}
-
-.watch.disabled{
-  background:#aaa;
-  pointer-events:none;
-}
-</style>
-</head>
-
-<body>
-
-<header>
-  <h1>Diskwala Links</h1>
-  <p>Watch your videos</p>
-</header>
-
-<div class="container">
-
-<input
-  id="search"
-  class="search"
-  type="text"
-  placeholder="Search videos..."
-  oninput="filterVideos()"
->
-
-<div id="message" class="loading">
-  Loading videos...
-</div>
-
-<div id="videos"></div>
-
-</div>
-
-<script>
-
-const SUPABASE_URL =
-"https://tmwzrmqtajwyocdzdzus.supabase.co";
-
-const SUPABASE_KEY =
-"sb_publishable_6NluK0UVqW31Kve-ADGXNg_GPprXmiz";
-
-const client = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-);
-
-let allVideos = [];
-
-async function loadVideos(){
-
-  const message =
-    document.getElementById("message");
-
-  const videos =
-    document.getElementById("videos");
-
-  message.style.display = "block";
-  message.className = "loading";
-  message.innerText = "Loading videos...";
-
-  videos.innerHTML = "";
-
-  const { data, error } = await client
-    .from("diskwala_links")
-    .select("id,slug,title,thumbnail_url,diskwala_url");
-
-  if(error){
-
-    console.error(error);
-
-    message.className = "error";
-
-    message.innerText =
-      "Unable to load videos. Please check Supabase.";
-
-    return;
-  }
-
-  allVideos = data || [];
-
-  message.style.display = "none";
-
-  if(allVideos.length === 0){
-
-    videos.innerHTML =
-      '<div class="empty">No videos available.</div>';
-
-    return;
-  }
-
-  displayVideos(allVideos);
-}
-
-
-function displayVideos(list){
-
-  const videos =
-    document.getElementById("videos");
+  const videos = document.getElementById("videos");
 
   videos.innerHTML = "";
 
   list.forEach(video => {
 
-    const card =
-      document.createElement("div");
+    const card = document.createElement("div");
 
     card.className = "card";
 
@@ -228,30 +20,26 @@ function displayVideos(list){
       video.thumbnail_url ||
       "https://via.placeholder.com/800x450?text=Diskwala";
 
-    let link = video.diskwala_url || "";
+    const link =
+      video.diskwala_url || "";
 
-    if(
-      !link.startsWith("http://") &&
-      !link.startsWith("https://")
-    ){
-      link = "#";
-    }
-
-    const buttonClass =
-      link === "#"
-      ? "watch disabled"
-      : "watch";
+    const buttonDisabled =
+      !link ||
+      !link.startsWith("https://www.diskwala.com/app/");
 
     card.innerHTML = `
 
-      <div onclick="openDiskwala('${escapeHtml(link)}')">
-  <img
-    class="thumb"
-    src="${escapeHtml(thumbnail)}"
-    alt="${escapeHtml(title)}"
-    onerror="this.src='https://via.placeholder.com/800x450?text=No+Thumbnail'"
-  >
-</div>
+      <div onclick="openDiskwala('${escapeHtml(link)}')"
+           style="cursor:pointer;">
+
+        <img
+          class="thumb"
+          src="${escapeHtml(thumbnail)}"
+          alt="${escapeHtml(title)}"
+          onerror="this.src='https://via.placeholder.com/800x450?text=No+Thumbnail'"
+        >
+
+      </div>
 
       <div class="content">
 
@@ -263,14 +51,23 @@ function displayVideos(list){
           ${escapeHtml(slug)}
         </div>
 
-        function openDiskwala(link) {
-
-  if (!link || link === "#") {
-    return;
-  }
-
-  window.location.href = link;
-}
+        ${
+          buttonDisabled
+          ? `
+            <button class="watch disabled" disabled>
+              ▶ Watch Video
+            </button>
+          `
+          : `
+            <button
+              class="watch"
+              type="button"
+              onclick="openDiskwala('${escapeHtml(link)}')"
+            >
+              ▶ Watch Video
+            </button>
+          `
+        }
 
       </div>
 
@@ -280,78 +77,3 @@ function displayVideos(list){
 
   });
 }
-
-
-function filterVideos(){
-
-  const search =
-    document
-      .getElementById("search")
-      .value
-      .toLowerCase()
-      .trim();
-
-  if(!search){
-
-    displayVideos(allVideos);
-    return;
-
-  }
-
-  const filtered =
-    allVideos.filter(video => {
-
-      const title =
-        (video.title || "").toLowerCase();
-
-      const slug =
-        (video.slug || "").toLowerCase();
-
-      return (
-        title.includes(search) ||
-        slug.includes(search)
-      );
-
-    });
-
-  if(filtered.length === 0){
-
-    document.getElementById("videos").innerHTML =
-      '<div class="empty">No videos found.</div>';
-
-    return;
-
-  }
-
-  displayVideos(filtered);
-}
-
-
-function escapeHtml(text){
-
-  const div =
-    document.createElement("div");
-
-  div.textContent =
-    text == null ? "" : String(text);
-
-  return div.innerHTML;
-}
-
-
-function openDiskwala(link) {
-
-  if (!link || link === "#") {
-    return;
-  }
-
-  // Android WebView: send the Diskwala URL
-  // through the normal navigation system.
-  window.location.href = link;
-}
-  loadVideos();
-
-</script>
-
-</body>
-</html>
