@@ -36,9 +36,9 @@ public class MainActivity extends Activity {
                     return false;
                 }
 
-                String url = request.getUrl().toString();
-
-                return handleUrl(url);
+                return handleUrl(
+                        request.getUrl().toString()
+                );
             }
 
             @Override
@@ -55,9 +55,9 @@ public class MainActivity extends Activity {
                     return false;
                 }
 
-                // ==========================================
-                // DISKWALA APP LINKS
-                // ==========================================
+                // =====================================
+                // DISKWALA APP URL
+                // =====================================
 
                 if (url.startsWith(
                         "https://www.diskwala.com/app/")) {
@@ -71,49 +71,49 @@ public class MainActivity extends Activity {
 
                         startActivity(intent);
 
-                        return true;
-
                     } catch (Exception e) {
 
                         e.printStackTrace();
 
-                        return true;
                     }
+
+                    return true;
                 }
 
-                // ==========================================
-                // INTENT LINKS
-                // ==========================================
+                // =====================================
+                // INTENT:// URL
+                // =====================================
 
                 if (url.startsWith("intent://")) {
 
                     try {
 
-                        Intent intent = Intent.parseUri(
-                                url,
-                                Intent.URI_INTENT_SCHEME
-                        );
+                        Intent intent =
+                                Intent.parseUri(
+                                        url,
+                                        Intent.URI_INTENT_SCHEME
+                                );
 
                         if (intent.resolveActivity(
                                 getPackageManager()) != null) {
 
                             startActivity(intent);
-                        }
 
-                        return true;
+                        }
 
                     } catch (Exception e) {
 
                         e.printStackTrace();
 
-                        return true;
                     }
+
+                    return true;
                 }
 
-                // ==========================================
-                // NORMAL WEBSITE
+                // =====================================
+                // NORMAL HTTPS WEBSITE
                 // Keep inside WebView
-                // ==========================================
+                // =====================================
 
                 if (url.startsWith("https://")
                         || url.startsWith("http://")) {
@@ -121,33 +121,11 @@ public class MainActivity extends Activity {
                     return false;
                 }
 
-                // ==========================================
-                // OTHER APP LINKS
-                // ==========================================
-
-                try {
-
-                    Intent intent = new Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(url)
-                    );
-
-                    if (intent.resolveActivity(
-                            getPackageManager()) != null) {
-
-                        startActivity(intent);
-                    }
-
-                } catch (Exception e) {
-
-                    e.printStackTrace();
-                }
-
-                return true;
+                return false;
             }
         });
 
-        // Open your website INSIDE the app
+        // Open GitHub website inside Android app
         webView.loadUrl(HOME_URL);
     }
 
@@ -161,6 +139,7 @@ public class MainActivity extends Activity {
         } else {
 
             super.onBackPressed();
+
         }
     }
 }
