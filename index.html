@@ -1,4 +1,4 @@
-function displayVideos(list) {
+              function displayVideos(list) {
 
   const videos = document.getElementById("videos");
 
@@ -23,23 +23,17 @@ function displayVideos(list) {
     const link =
       video.diskwala_url || "";
 
-    const buttonDisabled =
-      !link ||
-      !link.startsWith("https://www.diskwala.com/app/");
+    const validLink =
+      link.startsWith("https://www.diskwala.com/app/");
 
     card.innerHTML = `
 
-      <div onclick="openDiskwala('${escapeHtml(link)}')"
-           style="cursor:pointer;">
-
-        <img
-          class="thumb"
-          src="${escapeHtml(thumbnail)}"
-          alt="${escapeHtml(title)}"
-          onerror="this.src='https://via.placeholder.com/800x450?text=No+Thumbnail'"
-        >
-
-      </div>
+      <img
+        class="thumb"
+        src="${escapeHtml(thumbnail)}"
+        alt="${escapeHtml(title)}"
+        onerror="this.src='https://via.placeholder.com/800x450?text=No+Thumbnail'"
+      >
 
       <div class="content">
 
@@ -52,25 +46,24 @@ function displayVideos(list) {
         </div>
 
         ${
-          buttonDisabled
+          validLink
           ? `
-            <button class="watch disabled" disabled>
-              ▶ Watch Video
-            </button>
-          `
-          : `
-            <button
+            <a
               class="watch"
-              type="button"
-              onclick="openDiskwala('${escapeHtml(link)}')"
+              href="${escapeHtml(link)}"
+              target="_self"
             >
               ▶ Watch Video
-            </button>
+            </a>
+          `
+          : `
+            <div class="watch disabled">
+              ▶ Watch Video
+            </div>
           `
         }
 
       </div>
-
     `;
 
     videos.appendChild(card);
