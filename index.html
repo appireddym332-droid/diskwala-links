@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -9,6 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 <style>
+
 *{
   box-sizing:border-box;
 }
@@ -16,112 +18,179 @@
 body{
   margin:0;
   font-family:Arial,sans-serif;
-  background:#f5f6f8;
+  background:#fff;
   color:#111;
 }
 
+/* HEADER */
+
 header{
-  background:#111;
-  color:white;
-  padding:18px 16px;
+  background:#fff;
+  color:#111;
+  padding:18px 10px 14px;
   text-align:center;
+  border-bottom:1px solid #eee;
 }
 
 header h1{
   margin:0;
   font-size:24px;
+  font-weight:700;
 }
 
 header p{
   margin:6px 0 0;
-  color:#bbb;
+  color:#777;
   font-size:13px;
 }
 
+/* MAIN */
+
 .container{
-  max-width:700px;
+  width:100%;
+  max-width:900px;
   margin:auto;
   padding:16px;
 }
 
+/* SEARCH */
+
 .search{
   width:100%;
-  padding:14px;
+  padding:14px 16px;
   border:1px solid #ddd;
   border-radius:12px;
   font-size:16px;
   outline:none;
-  margin-bottom:18px;
-  background:white;
-}
-
-.loading,
-.empty{
-  text-align:center;
-  padding:40px 10px;
-  color:#777;
-}
-
-.error{
-  background:#ffe5e5;
-  color:#b00020;
-  padding:15px;
-  border-radius:12px;
-  margin-bottom:15px;
-}
-
-.card{
-  background:white;
-  border-radius:16px;
-  overflow:hidden;
   margin-bottom:20px;
-  box-shadow:0 3px 12px rgba(0,0,0,.08);
+  background:#fff;
+}
+
+.search:focus{
+  border-color:#999;
+}
+
+/* GRID */
+
+#videos{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:26px 18px;
+}
+
+/* VIDEO ITEM */
+
+.video-item{
+  width:100%;
+  cursor:pointer;
+  text-decoration:none;
+  color:#111;
+  display:block;
+}
+
+/* THUMBNAIL */
+
+.thumb-wrap{
+  width:100%;
+  aspect-ratio:16/9;
+  overflow:hidden;
+  border-radius:16px;
+  background:#eee;
 }
 
 .thumb{
   width:100%;
-  aspect-ratio:16/9;
+  height:100%;
   object-fit:cover;
   display:block;
-  background:#ddd;
+  transition:transform .2s ease;
 }
 
-.content{
-  padding:16px;
+.video-item:active .thumb{
+  transform:scale(.98);
 }
+
+/* TITLE */
 
 .title{
-  font-size:19px;
-  font-weight:bold;
-  margin-bottom:7px;
+  text-align:center;
+  font-size:18px;
+  font-weight:700;
+  margin-top:14px;
+  line-height:1.25;
 }
+
+/* OPTIONAL SLUG */
 
 .slug{
-  color:#777;
-  font-size:14px;
-  margin-bottom:14px;
-}
-
-.watch{
-  display:block;
-  width:100%;
-  padding:13px;
-  border-radius:10px;
-  background:#111;
-  color:white;
   text-align:center;
-  text-decoration:none;
-  font-weight:bold;
+  color:#777;
+  font-size:13px;
+  margin-top:5px;
 }
 
-.watch:active{
-  opacity:.8;
+/* LOADING */
+
+.loading,
+.empty{
+  grid-column:1 / -1;
+  text-align:center;
+  padding:50px 10px;
+  color:#777;
 }
 
-.watch.disabled{
-  background:#aaa;
-  pointer-events:none;
+/* ERROR */
+
+.error{
+  grid-column:1 / -1;
+  background:#ffe5e5;
+  color:#b00020;
+  padding:15px;
+  border-radius:12px;
+  text-align:center;
 }
+
+/* MOBILE */
+
+@media(max-width:500px){
+
+  .container{
+    padding:16px;
+  }
+
+  #videos{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:26px 16px;
+  }
+
+  .title{
+    font-size:17px;
+  }
+
+  .slug{
+    font-size:12px;
+  }
+
+}
+
+/* VERY SMALL PHONES */
+
+@media(max-width:350px){
+
+  .container{
+    padding:12px;
+  }
+
+  #videos{
+    gap:22px 10px;
+  }
+
+  .title{
+    font-size:15px;
+  }
+
+}
+
 </style>
 
 </head>
@@ -129,29 +198,37 @@ header p{
 <body>
 
 <header>
+
   <h1>Diskwala Links</h1>
+
   <p>Watch your videos</p>
+
 </header>
+
 
 <div class="container">
 
-<input
-  id="search"
-  class="search"
-  type="text"
-  placeholder="Search videos..."
->
+  <input
+    id="search"
+    class="search"
+    type="text"
+    placeholder="Search videos..."
+  >
 
-<div id="message" class="loading">
-  Loading videos...
-</div>
+  <div id="videos">
 
-<div id="videos"></div>
+    <div class="loading">
+      Loading videos...
+    </div>
+
+  </div>
 
 </div>
 
 
 <script>
+
+/* SUPABASE */
 
 const SUPABASE_URL =
 "https://tmwzrmqtajwyocdzdzus.supabase.co";
@@ -159,61 +236,84 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
 "sb_publishable_6NluK0UVqW31Kve-ADGXNg_GPprXmiz";
 
-const client = window.supabase.createClient(
+const client =
+window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
 
+
 let allVideos = [];
 
 
-async function loadVideos(){
+/* LOAD VIDEOS */
 
-  const message =
-    document.getElementById("message");
+async function loadVideos(){
 
   const videos =
     document.getElementById("videos");
 
-  message.style.display = "block";
-  message.className = "loading";
-  message.innerText = "Loading videos...";
+  videos.innerHTML = `
+    <div class="loading">
+      Loading videos...
+    </div>
+  `;
 
-  videos.innerHTML = "";
 
   const { data, error } = await client
+
     .from("diskwala_links")
+
     .select(
-      "id,slug,title,thumbnail_url,diskwala_url"
+      "id,slug,title,thumbnail_url,diskwala_url,created_at"
+    )
+
+    /* NEWEST FIRST */
+
+    .order(
+      "created_at",
+      {
+        ascending:false
+      }
     );
+
 
   if(error){
 
     console.error(error);
 
-    message.className = "error";
-
-    message.innerText =
-      "Unable to load videos. Please check Supabase.";
+    videos.innerHTML = `
+      <div class="error">
+        Unable to load videos.<br>
+        Please check Supabase.
+      </div>
+    `;
 
     return;
   }
+
 
   allVideos = data || [];
 
-  message.style.display = "none";
 
   if(allVideos.length === 0){
 
-    videos.innerHTML =
-      '<div class="empty">No videos available.</div>';
+    videos.innerHTML = `
+      <div class="empty">
+        No videos available.
+      </div>
+    `;
 
     return;
   }
 
+
   displayVideos(allVideos);
+
 }
 
+
+/* DISPLAY VIDEOS */
 
 function displayVideos(list){
 
@@ -223,16 +323,11 @@ function displayVideos(list){
   videos.innerHTML = "";
 
 
-  list.forEach(video => {
-
-    const card =
-      document.createElement("div");
-
-    card.className = "card";
-
+  list.forEach((video,index) => {
 
     const title =
-      video.title || "Watch Video";
+      video.title ||
+      `Video ${list.length - index}`;
 
 
     const slug =
@@ -254,55 +349,75 @@ function displayVideos(list){
       );
 
 
-    card.innerHTML = `
+    if(!validLink){
 
-      <img
-        class="thumb"
-        src="${escapeHtml(thumbnail)}"
-        alt="${escapeHtml(title)}"
-        onerror="this.src='https://via.placeholder.com/800x450?text=No+Thumbnail'"
-      >
+      return;
 
-      <div class="content">
+    }
 
-        <div class="title">
-          ${escapeHtml(title)}
-        </div>
 
-        <div class="slug">
-          ${escapeHtml(slug)}
-        </div>
+    const item =
+      document.createElement("a");
 
-        ${
-          validLink
+    item.className =
+      "video-item";
 
-          ? `
-            <a
-              class="watch"
-              href="${escapeHtml(link)}"
-            >
-              ▶ Watch Video
-            </a>
-          `
+    item.href =
+      link;
 
-          : `
-            <div class="watch disabled">
-              ▶ Watch Video
-            </div>
-          `
-        }
+
+    item.innerHTML = `
+
+      <div class="thumb-wrap">
+
+        <img
+          class="thumb"
+          src="${escapeHtml(thumbnail)}"
+          alt="${escapeHtml(title)}"
+          loading="lazy"
+          onerror="
+            this.src='https://via.placeholder.com/800x450?text=No+Thumbnail'
+          "
+        >
 
       </div>
+
+      <div class="title">
+        ${escapeHtml(title)}
+      </div>
+
+      ${
+        slug
+        ? `
+          <div class="slug">
+            ${escapeHtml(slug)}
+          </div>
+        `
+        : ""
+      }
 
     `;
 
 
-    videos.appendChild(card);
+    videos.appendChild(item);
 
   });
 
+
+  if(videos.children.length === 0){
+
+    videos.innerHTML = `
+      <div class="empty">
+        No valid videos found.
+      </div>
+    `;
+
+  }
+
 }
 
+
+/* SEARCH */
 
 function filterVideos(){
 
@@ -319,6 +434,7 @@ function filterVideos(){
     displayVideos(allVideos);
 
     return;
+
   }
 
 
@@ -329,9 +445,11 @@ function filterVideos(){
         (video.title || "")
         .toLowerCase();
 
+
       const slug =
         (video.slug || "")
         .toLowerCase();
+
 
       return (
         title.includes(search) ||
@@ -343,10 +461,16 @@ function filterVideos(){
 
   if(filtered.length === 0){
 
-    document.getElementById("videos").innerHTML =
-      '<div class="empty">No videos found.</div>';
+    document.getElementById("videos").innerHTML = `
+
+      <div class="empty">
+        No videos found.
+      </div>
+
+    `;
 
     return;
+
   }
 
 
@@ -354,6 +478,8 @@ function filterVideos(){
 
 }
 
+
+/* SECURITY */
 
 function escapeHtml(text){
 
@@ -366,8 +492,11 @@ function escapeHtml(text){
       : String(text);
 
   return div.innerHTML;
+
 }
 
+
+/* SEARCH EVENT */
 
 document
   .getElementById("search")
@@ -376,6 +505,8 @@ document
     filterVideos
   );
 
+
+/* START */
 
 loadVideos();
 
