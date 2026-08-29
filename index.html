@@ -1,26 +1,876 @@
-plugins {
-    id 'com.android.application'
-}
+<!DOCTYPE html>
+<html lang="en">
 
-android {
-    namespace 'com.diskwalalinks.app'
-    compileSdk 35
+<head>
 
-    defaultConfig {
-        applicationId "com.diskwalalinks.app"
-        minSdk 23
-        targetSdk 35
-        versionCode 1
-        versionName "1.0"
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Diskwala Links</title>
+
+  <!-- Google Analytics -->
+  <script
+    async
+    src="https://www.googletagmanager.com/gtag/js?id=G-9BEPF4JXZL">
+  </script>
+
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag(){
+      dataLayer.push(arguments);
     }
 
-    buildTypes {
-        debug {
+    gtag('js', new Date());
+
+    gtag('config', 'G-9BEPF4JXZL');
+  </script>
+
+
+  <!-- Supabase -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js">
+  </script>
+
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+
+    body {
+      margin: 0;
+      padding: 0;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      background: #ffffff;
+      color: #111111;
+    }
+
+
+    /* =========================
+       HEADER
+    ========================= */
+
+    header {
+      width: 100%;
+
+      background: #ffffff;
+
+      padding:
+        18px
+        10px
+        14px;
+
+      text-align: center;
+
+      border-bottom:
+        1px solid #eeeeee;
+    }
+
+
+    header h1 {
+      margin: 0;
+
+      font-size: 24px;
+
+      font-weight: 700;
+    }
+
+
+    header p {
+      margin:
+        6px
+        0
+        0;
+
+      color: #777777;
+
+      font-size: 13px;
+    }
+
+
+    /* =========================
+       MAIN CONTAINER
+    ========================= */
+
+    .container {
+      width: 100%;
+
+      max-width: 900px;
+
+      margin: 0 auto;
+
+      padding: 16px;
+    }
+
+
+    /* =========================
+       SEARCH
+    ========================= */
+
+    .search {
+      width: 100%;
+
+      padding:
+        14px
+        16px;
+
+      border:
+        1px solid #dddddd;
+
+      border-radius: 12px;
+
+      font-size: 16px;
+
+      outline: none;
+
+      margin-bottom: 20px;
+
+      background: #ffffff;
+
+      color: #111111;
+    }
+
+
+    .search:focus {
+      border-color: #999999;
+    }
+
+
+    /* =========================
+       VIDEO GRID
+    ========================= */
+
+    #videos {
+
+      display: grid;
+
+      grid-template-columns:
+        repeat(
+          2,
+          minmax(0, 1fr)
+        );
+
+      gap:
+        26px
+        18px;
+    }
+
+
+    /* =========================
+       VIDEO ITEM
+    ========================= */
+
+    .video-item {
+
+      width: 100%;
+
+      cursor: pointer;
+
+      text-decoration: none;
+
+      color: #111111;
+
+      display: block;
+    }
+
+
+    /* =========================
+       THUMBNAIL
+    ========================= */
+
+    .thumb-wrap {
+
+      width: 100%;
+
+      aspect-ratio: 16 / 9;
+
+      overflow: hidden;
+
+      border-radius: 16px;
+
+      background: #eeeeee;
+    }
+
+
+    .thumb {
+
+      width: 100%;
+
+      height: 100%;
+
+      object-fit: cover;
+
+      display: block;
+
+      transition:
+        transform
+        0.2s
+        ease;
+    }
+
+
+    .video-item:active .thumb {
+
+      transform:
+        scale(0.98);
+    }
+
+
+    /* =========================
+       TITLE
+    ========================= */
+
+    .title {
+
+      text-align: center;
+
+      font-size: 18px;
+
+      font-weight: 700;
+
+      margin-top: 14px;
+
+      line-height: 1.25;
+    }
+
+
+    /* =========================
+       SLUG
+    ========================= */
+
+    .slug {
+
+      text-align: center;
+
+      color: #777777;
+
+      font-size: 13px;
+
+      margin-top: 5px;
+    }
+
+
+    /* =========================
+       LOADING / EMPTY
+    ========================= */
+
+    .loading,
+    .empty {
+
+      grid-column:
+        1 / -1;
+
+      text-align: center;
+
+      padding:
+        50px
+        10px;
+
+      color: #777777;
+    }
+
+
+    /* =========================
+       ERROR
+    ========================= */
+
+    .error {
+
+      grid-column:
+        1 / -1;
+
+      background:
+        #ffe5e5;
+
+      color:
+        #b00020;
+
+      padding:
+        15px;
+
+      border-radius:
+        12px;
+
+      text-align:
+        center;
+    }
+
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    @media (max-width: 500px) {
+
+      .container {
+
+        padding: 16px;
+      }
+
+
+      #videos {
+
+        grid-template-columns:
+          repeat(
+            2,
+            minmax(0, 1fr)
+          );
+
+        gap:
+          26px
+          16px;
+      }
+
+
+      .title {
+
+        font-size: 17px;
+      }
+
+
+      .slug {
+
+        font-size: 12px;
+      }
+
+    }
+
+
+    /* =========================
+       VERY SMALL PHONES
+    ========================= */
+
+    @media (max-width: 350px) {
+
+      .container {
+
+        padding: 12px;
+      }
+
+
+      #videos {
+
+        gap:
+          22px
+          10px;
+      }
+
+
+      .title {
+
+        font-size: 15px;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <!-- =========================
+       HEADER
+  ========================= -->
+
+  <header>
+
+    <h1>
+      Diskwala Links
+    </h1>
+
+    <p>
+      Watch your videos
+    </p>
+
+  </header>
+
+
+  <!-- =========================
+       MAIN
+  ========================= -->
+
+  <div class="container">
+
+
+    <!-- SEARCH -->
+
+    <input
+      id="search"
+      class="search"
+      type="text"
+      placeholder="Search videos..."
+      autocomplete="off"
+    >
+
+
+    <!-- VIDEOS -->
+
+    <div id="videos">
+
+      <div class="loading">
+        Loading videos...
+      </div>
+
+    </div>
+
+
+  </div>
+
+
+  <script>
+
+
+    /* =========================================
+       SUPABASE CONFIGURATION
+    ========================================= */
+
+    const SUPABASE_URL =
+      "https://tmwzrmqtajwyocdzdzus.supabase.co";
+
+
+    const SUPABASE_KEY =
+      "sb_publishable_6NluK0UVqW31Kve-ADGXNg_GPprXmiz";
+
+
+    const client =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
+
+    /* =========================================
+       GLOBAL VIDEO DATA
+    ========================================= */
+
+    let allVideos = [];
+
+
+    /* =========================================
+       LOAD VIDEOS
+    ========================================= */
+
+    async function loadVideos() {
+
+      const videos =
+        document.getElementById("videos");
+
+
+      videos.innerHTML = `
+        <div class="loading">
+          Loading videos...
+        </div>
+      `;
+
+
+      try {
+
+        const {
+          data,
+          error
+        } = await client
+
+          .from("diskwala_links")
+
+          .select(
+            "id,slug,title,thumbnail_url,diskwala_url,created_at"
+          )
+
+          .order(
+            "created_at",
+            {
+              ascending: false
+            }
+          );
+
+
+        /* =====================================
+           SUPABASE ERROR
+        ===================================== */
+
+        if (error) {
+
+          console.error(
+            "Supabase Error:",
+            error
+          );
+
+
+          videos.innerHTML = `
+            <div class="error">
+              Unable to load videos.<br>
+              Please check Supabase.
+            </div>
+          `;
+
+
+          return;
         }
 
-        release {
-            signingConfig signingConfigs.debug
-            minifyEnabled false
+
+        /* =====================================
+           SAVE DATA
+        ===================================== */
+
+        allVideos =
+          data || [];
+
+
+        /* =====================================
+           NO VIDEOS
+        ===================================== */
+
+        if (
+          allVideos.length === 0
+        ) {
+
+          videos.innerHTML = `
+            <div class="empty">
+              No videos available.
+            </div>
+          `;
+
+
+          return;
         }
+
+
+        /* =====================================
+           DISPLAY
+        ===================================== */
+
+        displayVideos(
+          allVideos
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "Loading Error:",
+          error
+        );
+
+
+        videos.innerHTML = `
+          <div class="error">
+            Something went wrong.<br>
+            Please try again.
+          </div>
+        `;
+
+      }
+
     }
-}
+
+
+    /* =========================================
+       DISPLAY VIDEOS
+    ========================================= */
+
+    function displayVideos(list) {
+
+      const videos =
+        document.getElementById("videos");
+
+
+      videos.innerHTML = "";
+
+
+      list.forEach(
+        (video, index) => {
+
+
+          /* ===================================
+             TITLE
+          =================================== */
+
+          const title =
+            video.title ||
+            `Video ${list.length - index}`;
+
+
+          /* ===================================
+             SLUG
+          =================================== */
+
+          const slug =
+            video.slug || "";
+
+
+          /* ===================================
+             THUMBNAIL
+          =================================== */
+
+          const thumbnail =
+            video.thumbnail_url ||
+            "https://via.placeholder.com/800x450?text=Diskwala";
+
+
+          /* ===================================
+             DISKWALA URL
+          =================================== */
+
+          const link =
+            video.diskwala_url || "";
+
+
+          /* ===================================
+             VALIDATE LINK
+          =================================== */
+
+          const validLink =
+            link.startsWith(
+              "https://www.diskwala.com/app/"
+            );
+
+
+          if (!validLink) {
+
+            return;
+          }
+
+
+          /* ===================================
+             CREATE LINK
+          =================================== */
+
+          const item =
+            document.createElement("a");
+
+
+          item.className =
+            "video-item";
+
+
+          item.href =
+            link;
+
+
+          /* ===================================
+             HTML
+          =================================== */
+
+          item.innerHTML = `
+
+            <div class="thumb-wrap">
+
+              <img
+                class="thumb"
+                src="${escapeHtml(thumbnail)}"
+                alt="${escapeHtml(title)}"
+                loading="lazy"
+                onerror="
+                  this.onerror=null;
+                  this.src='https://via.placeholder.com/800x450?text=No+Thumbnail';
+                "
+              >
+
+            </div>
+
+
+            <div class="title">
+              ${escapeHtml(title)}
+            </div>
+
+
+            ${
+              slug
+                ? `
+                  <div class="slug">
+                    ${escapeHtml(slug)}
+                  </div>
+                `
+                : ""
+            }
+
+          `;
+
+
+          videos.appendChild(
+            item
+          );
+
+        }
+      );
+
+
+      /* =====================================
+         CHECK VALID VIDEOS
+      ===================================== */
+
+      if (
+        videos.children.length === 0
+      ) {
+
+        videos.innerHTML = `
+          <div class="empty">
+            No valid videos found.
+          </div>
+        `;
+
+      }
+
+    }
+
+
+    /* =========================================
+       SEARCH / FILTER
+    ========================================= */
+
+    function filterVideos() {
+
+      const search =
+        document
+          .getElementById("search")
+          .value
+          .toLowerCase()
+          .trim();
+
+
+      /* =====================================
+         EMPTY SEARCH
+      ===================================== */
+
+      if (!search) {
+
+        displayVideos(
+          allVideos
+        );
+
+
+        return;
+      }
+
+
+      /* =====================================
+         FILTER
+      ===================================== */
+
+      const filtered =
+        allVideos.filter(
+          video => {
+
+
+            const title =
+              (
+                video.title ||
+                ""
+              )
+              .toLowerCase();
+
+
+            const slug =
+              (
+                video.slug ||
+                ""
+              )
+              .toLowerCase();
+
+
+            return (
+              title.includes(search) ||
+              slug.includes(search)
+            );
+
+          }
+        );
+
+
+      /* =====================================
+         NO SEARCH RESULT
+      ===================================== */
+
+      if (
+        filtered.length === 0
+      ) {
+
+        document.getElementById(
+          "videos"
+        ).innerHTML = `
+
+          <div class="empty">
+            No videos found.
+          </div>
+
+        `;
+
+
+        return;
+      }
+
+
+      /* =====================================
+         SHOW FILTERED
+      ===================================== */
+
+      displayVideos(
+        filtered
+      );
+
+    }
+
+
+    /* =========================================
+       SECURITY
+    ========================================= */
+
+    function escapeHtml(text) {
+
+      const div =
+        document.createElement(
+          "div"
+        );
+
+
+      div.textContent =
+        text == null
+          ? ""
+          : String(text);
+
+
+      return div.innerHTML;
+
+    }
+
+
+    /* =========================================
+       SEARCH EVENT
+    ========================================= */
+
+    document
+      .getElementById("search")
+      .addEventListener(
+        "input",
+        filterVideos
+      );
+
+
+    /* =========================================
+       START APPLICATION
+    ========================================= */
+
+    loadVideos();
+
+
+  </script>
+
+
+</body>
+
+    </html>
