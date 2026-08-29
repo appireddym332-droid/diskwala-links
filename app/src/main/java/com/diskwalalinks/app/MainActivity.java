@@ -13,7 +13,7 @@ public class MainActivity extends Activity {
     private WebView webView;
 
     private static final String HOME_URL =
-            "https://appireddym332-droid.github.io/diskwala-links/";
+            "https://appireddym332-droid.github.io/diskwala-links/index.html";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +24,8 @@ public class MainActivity extends Activity {
 
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setAllowFileAccess(true);
+        webView.getSettings().setAllowContentAccess(true);
 
         webView.setWebViewClient(new WebViewClient() {
 
@@ -36,9 +38,7 @@ public class MainActivity extends Activity {
                     return false;
                 }
 
-                return handleUrl(
-                        request.getUrl().toString()
-                );
+                return handleUrl(request.getUrl().toString());
             }
 
             @Override
@@ -55,15 +55,11 @@ public class MainActivity extends Activity {
                     return false;
                 }
 
-                // =====================================
-                // DISKWALA APP URL
-                // =====================================
-
+                // Diskwala video links → open externally
                 if (url.startsWith(
                         "https://www.diskwala.com/app/")) {
 
                     try {
-
                         Intent intent = new Intent(
                                 Intent.ACTION_VIEW,
                                 Uri.parse(url)
@@ -72,49 +68,36 @@ public class MainActivity extends Activity {
                         startActivity(intent);
 
                     } catch (Exception e) {
-
                         e.printStackTrace();
-
                     }
 
                     return true;
                 }
 
-                // =====================================
-                // INTENT:// URL
-                // =====================================
-
+                // Intent links
                 if (url.startsWith("intent://")) {
 
                     try {
 
-                        Intent intent =
-                                Intent.parseUri(
-                                        url,
-                                        Intent.URI_INTENT_SCHEME
-                                );
+                        Intent intent = Intent.parseUri(
+                                url,
+                                Intent.URI_INTENT_SCHEME
+                        );
 
                         if (intent.resolveActivity(
                                 getPackageManager()) != null) {
 
                             startActivity(intent);
-
                         }
 
                     } catch (Exception e) {
-
                         e.printStackTrace();
-
                     }
 
                     return true;
                 }
 
-                // =====================================
-                // NORMAL HTTPS WEBSITE
-                // Keep inside WebView
-                // =====================================
-
+                // Normal web pages stay inside WebView
                 if (url.startsWith("https://")
                         || url.startsWith("http://")) {
 
@@ -125,7 +108,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Open GitHub website inside Android app
+        // Load the actual GitHub Pages index.html
         webView.loadUrl(HOME_URL);
     }
 
@@ -133,13 +116,9 @@ public class MainActivity extends Activity {
     public void onBackPressed() {
 
         if (webView != null && webView.canGoBack()) {
-
             webView.goBack();
-
         } else {
-
             super.onBackPressed();
-
         }
     }
 }
